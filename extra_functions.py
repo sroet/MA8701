@@ -72,12 +72,13 @@ def feature_selection_cv(X, y, alpha_vals, reg, group_reg=None):
     return beta, beta_best, cv_outs, min_alpha
 
 
-def bootstrap_loop(X, y, alpha_vals, reg, b=20, N_samples=100,
+def bootstrap_loop(X, y, alpha_vals, reg, b=20, N_samples=100, random_state=0,
                    *args, **kwargs):
     betas = np.zeros((N_samples, X.shape[1]))
+    rng = np.random.default_rng(random_state)
     for n in range(N_samples):
         index_vector = np.arange(len(y))
-        boot_index = np.random.choice(index_vector, size=b)
+        boot_index = rng.choice(index_vector, size=b)
         X_sample = X[boot_index, :]
         y_sample = y[boot_index]
         _, beta_best, _, _ = feature_selection_cv(X_sample, y_sample,
