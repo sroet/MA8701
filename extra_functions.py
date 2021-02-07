@@ -52,22 +52,21 @@ def feature_selection_cv(X, y, alpha_vals, reg, group_reg=None):
     beta = np.zeros((X.shape[1], n_alpha))
     cv_outs = []
     min_cv = np.inf
-    for i in range(n_alpha):
+    for i, alpha in enumerate(alpha_vals):
         if type(reg) == GroupLasso:   # Handling group lasso
-            reg.group_reg = group_reg*alpha_vals[i]
-            reg.l1_reg = (1-group_reg)*alpha_vals[i]
-            reg.fit(X, y)
-            beta[:, i] = reg.coef_.reshape(-1)
+            reg.group_reg = group_reg*alpha
+            reg.l1_reg = (1-group_reg)*alpha
         else:
-            reg.alpha = alpha_vals[i]
-            reg.fit(X, y)
-            beta[:, i] = reg.coef_
+            reg.alpha = alpha
+
+        reg.fit(X, y)
+        beta[:, i] = reg.coef_.reshape(-1)
         cv_out = cross_val_score(reg, X, y, cv=10,
                                  scoring='neg_mean_squared_error')
         cv_outs.append(cv_out)
         if -cv_out.mean() < min_cv:
             min_cv = -cv_out.mean()
-            min_alpha = alpha_vals[i]
+            min_alpha = alpha
 
     beta_best = beta[:, alpha_vals == min_alpha]
     return beta, beta_best, cv_outs, min_alpha
@@ -75,7 +74,6 @@ def feature_selection_cv(X, y, alpha_vals, reg, group_reg=None):
 
 def bootstrap_loop(X, y, alpha_vals, reg, b=20, N_samples=100,
                    *args, **kwargs):
-
     betas = np.zeros((N_samples, X.shape[1]))
     for n in range(N_samples):
         index_vector = np.arange(len(y))
