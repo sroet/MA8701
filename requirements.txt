@@ -5,3 +5,7 @@ pandas
 sklearn
 git+https://github.com/yngvem/group-lasso.git 
 seaborn
+tensorflow
+tensorflow-datasets
+tensorflow-probability
+keras-tuner
